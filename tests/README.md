@@ -39,17 +39,15 @@ VSCodeのデバッグ用語（ブレークポイント・ステップオーバ�
 
 `test_returns_500_when_connection_fails` は `get_object.side_effect = Exception(...)` により、
 `get_object()` を呼んだ瞬間に自動で例外が発生する仕組みです。変数を手動で書き換える必要はありません。
-それでも `lambda_function.py` の `except` に入らないように見える場合、原因はだいたい次のどちらかです。
 
-1. **複数テストをまとめてデバッグしていて、最初のヒットで止まっている**
-   `lambda_function.py` の `obj = s3.get_object(...)` にブレークポイントを置いた状態で全テストを
-   デバッグ実行すると、このブレークポイントは**テストごとに毎回ヒットします**（呼び出し順は
-   `test_returns_200_with_object_content` → `test_returns_500_when_connection_fails` →
-   `test_returns_400_when_bucket_or_key_missing`）。1回目のヒットは200ケースなので `except` には入りません。
-   Continue（F5）でもう一度進めると、2回目のヒットで500ケースの例外を確認できます。
+それでも `except` に入らないように見えるのは、**`test_lambda_function.py` を指定して（＝ファイル内の
+全テストをまとめて）テストのデバッグを実行しているから**です。`lambda_function.py` の
+`obj = s3.get_object(...)` に置いたブレークポイントは、テストの実行順
+（`test_returns_200_with_object_content` → `test_returns_500_when_connection_fails` →
+`test_returns_400_when_bucket_or_key_missing`）どおりに**毎回ヒットします**。1回目のヒットは200ケースなので
+`except` には入らず、Continue（F5）でもう一度進めた2回目のヒットでようやく500ケースの例外を確認できます。
 
-2. **対象のテストだけを狙ってデバッグする（おすすめ）**
-   Test Explorer上で `test_returns_500_when_connection_fails` を右クリック→「Debug Test」で単体実行すれば、
-   最初のヒットが必ず500ケースになります。`s3.get_object(...)` の行はStep Over（F10）で進めてください。
-   Step Into（F11）すると `unittest/mock.py` の内部実装に潜ってしまい、`except` に行かないように
-   見えることがあります。
+**最初からこのテストを実行したい場合**は、Test Explorer上で `test_returns_500_when_connection_fails`
+のやつを指定して「テストのデバッグ」を押してください。これで最初のヒットが必ず500ケースになります。
+`s3.get_object(...)` の行はStep Over（F10）で進めてください。Step Into（F11）すると
+`unittest/mock.py` の内部実装に潜ってしまい、`except` に行かないように見えることがあります。
