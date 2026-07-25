@@ -43,6 +43,8 @@ python -m venv .venv
 # 3. 仮想環境を有効化
 # Windows (PowerShell)
 .venv\Scripts\Activate.ps1
+# Windows (コマンドプロンプト)
+.venv\Scripts\activate.bat
 # macOS / Linux
 source .venv/bin/activate
 
@@ -52,9 +54,26 @@ pip install -r requirements.txt
 
 ## テストの実行
 
+### コマンドラインから実行する場合
+
 ```bash
 pytest tests/test_lambda_function.py -v
 ```
+
+### VSCodeから実行する場合
+
+このリポジトリの `.vscode/settings.json` で pytest がテストランナーとして設定済みのため、
+追加設定なしで以下の手順で実行できます。
+
+1. 左側のアクティビティバーから「テスト」（フラスコのアイコン）を開く
+2. `tests/test_lambda_function.py` 配下にテスト関数が自動で一覧表示される
+   （表示されない場合は仮想環境を有効化した状態でVSCodeを開き直し、
+   コマンドパレットから `Python: Configure Tests` を実行）
+3. テスト名の横にある ▷ ボタンで実行、🐞 ボタンでデバッグ実行ができる
+4. ファイル名やルート（`tests`）の横のボタンから、まとめて実行することも可能
+
+デバッグ実行時の用語（ブレークポイント・ステップオーバー等）は
+[`docs/debugging.md`](docs/debugging.md) を参照してください。
 
 テストの内容や `lambda_handler` との対応関係は [`tests/README.md`](tests/README.md) を参照してください。
 
