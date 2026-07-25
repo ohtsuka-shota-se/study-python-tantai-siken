@@ -4,34 +4,40 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>study-python-tantai-siken — S3取得Lambda</title>
-<meta name="description" content="S3からオブジェクトを取得するLambda関数のドキュメント。セットアップ手順・仕様・テストの流れをまとめたページ" />
+<meta name="description" content="S3からオブジェクトを取得するLambda関数のドキュメント。仕様・テストの流れ・ローカル環境構築をまとめたページ" />
 <style>
   :root {
-    --bg: #f7f6f1;
+    --bg: #f5f1e9;
     --surface: #ffffff;
-    --ink: #20242c;
-    --ink-muted: #5b6270;
-    --accent: #a67c1e;
+    --surface-quiet: #faf6ee;
+    --ink: #1c2027;
+    --ink-muted: #5b6472;
+    --accent: #2c5fa0;
+    --accent-soft: #dbe6f3;
     --accent-ink: #ffffff;
     --pass: #3f7d58;
-    --fail: #b14a3d;
-    --border: #e1dccd;
-    --code-bg: #f1efe4;
-    --shadow: 0 1px 2px rgba(32, 36, 44, 0.06), 0 8px 24px rgba(32, 36, 44, 0.05);
+    --fail: #b23b3b;
+    --border: #e3dcc9;
+    --border-quiet: #ebe4d3;
+    --code-bg: #efeadd;
+    --shadow: 0 1px 2px rgba(28, 32, 39, 0.06), 0 12px 28px rgba(28, 32, 39, 0.07);
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #14161b;
       --surface: #1b1e26;
-      --ink: #ece9df;
-      --ink-muted: #9ca2ae;
-      --accent: #e0b23a;
-      --accent-ink: #1b1600;
+      --surface-quiet: #20232b;
+      --ink: #ece9e0;
+      --ink-muted: #9ca3b0;
+      --accent: #6fa3e0;
+      --accent-soft: #22334a;
+      --accent-ink: #0e1622;
       --pass: #6fbe8f;
-      --fail: #e2897b;
-      --border: #2e323c;
-      --code-bg: #22262f;
-      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+      --fail: #e2857a;
+      --border: #2c2f38;
+      --border-quiet: #24272f;
+      --code-bg: #20232b;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 12px 28px rgba(0, 0, 0, 0.4);
     }
   }
 
@@ -52,14 +58,14 @@
     position: sticky;
     top: 0;
     z-index: 10;
-    background: var(--bg);
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
     border-bottom: 1px solid var(--border);
     padding: 0.9rem 1.5rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    backdrop-filter: blur(6px);
+    backdrop-filter: blur(8px);
   }
 
   header.topbar .brand {
@@ -67,60 +73,98 @@
     font-size: 0.85rem;
     font-weight: 600;
     letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+
+  header.topbar nav {
+    display: flex;
+    gap: 0.4rem;
+    overflow-x: auto;
   }
 
   header.topbar nav a {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     text-decoration: none;
     color: var(--ink-muted);
-    border: 1px solid var(--border);
+    white-space: nowrap;
+    padding: 0.35rem 0.55rem;
     border-radius: 6px;
-    padding: 0.35rem 0.7rem;
   }
-  header.topbar nav a:hover { color: var(--accent); border-color: var(--accent); }
+  header.topbar nav a:hover { color: var(--accent); background: var(--accent-soft); }
+  header.topbar nav a.external { border: 1px solid var(--border); }
 
   main {
-    max-width: 760px;
+    max-width: 780px;
     margin: 0 auto;
-    padding: 3rem 1.5rem 5rem;
+    padding: 3.25rem 1.5rem 5rem;
     display: flex;
     flex-direction: column;
-    gap: 2.75rem;
+    gap: 3.25rem;
   }
 
   .eyebrow {
-    font-size: 0.78rem;
-    letter-spacing: 0.08em;
+    font-size: 0.76rem;
+    letter-spacing: 0.09em;
     text-transform: uppercase;
     color: var(--accent);
-    font-weight: 600;
+    font-weight: 700;
     margin: 0 0 0.6rem;
   }
 
   h1 {
     font-family: Iowan Old Style, Charter, "Yu Mincho", "Hiragino Mincho ProN", Georgia, serif;
-    font-size: clamp(1.7rem, 1.3rem + 1.4vw, 2.35rem);
+    font-size: clamp(1.85rem, 1.4rem + 1.8vw, 2.6rem);
     font-weight: 600;
-    margin: 0 0 0.5rem;
+    margin: 0 0 0.6rem;
     text-wrap: balance;
     letter-spacing: -0.01em;
   }
 
   h2 {
     font-family: Iowan Old Style, Charter, "Yu Mincho", "Hiragino Mincho ProN", Georgia, serif;
-    font-size: 1.3rem;
-    font-weight: 600;
-    margin: 0 0 0.9rem;
     letter-spacing: -0.005em;
   }
+
+  section.primary h2 { font-size: 1.45rem; font-weight: 700; margin: 0 0 0.9rem; }
+  section.secondary h2 { font-size: 1.05rem; font-weight: 600; margin: 0 0 0.9rem; color: var(--ink); }
 
   h3 { font-size: 0.98rem; font-weight: 600; margin: 0 0 0.3rem; }
 
   .lede {
     color: var(--ink-muted);
-    font-size: 1.02rem;
+    font-size: 1.05rem;
     max-width: 60ch;
-    margin: 0;
+    margin: 0 0 1.6rem;
+  }
+
+  /* ── Hero: at-a-glance summary ── */
+  .glance {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.9rem;
+  }
+  .glance-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--glance-color, var(--accent));
+    border-radius: 8px;
+    padding: 0.9rem 1rem;
+    box-shadow: var(--shadow);
+  }
+  .glance-item .code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--glance-color, var(--accent));
+  }
+  .glance-item p {
+    margin: 0.3rem 0 0;
+    font-size: 0.82rem;
+    color: var(--ink-muted);
+    line-height: 1.5;
+  }
+  @media (max-width: 560px) {
+    .glance { grid-template-columns: 1fr; }
   }
 
   code, .mono {
@@ -145,12 +189,19 @@
     margin: 0;
   }
 
-  section.card {
+  /* ── Section weight system ── */
+  section.primary {
     background: var(--surface);
     border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
     border-radius: 10px;
     box-shadow: var(--shadow);
-    padding: 1.6rem;
+    padding: 1.8rem 1.8rem 1.8rem 1.6rem;
+  }
+  section.secondary {
+    background: var(--surface-quiet);
+    border-top: 1px solid var(--border-quiet);
+    padding: 1.75rem 0 0;
   }
 
   table {
@@ -160,18 +211,18 @@
   }
   th, td {
     text-align: left;
-    padding: 0.55rem 0.7rem;
+    padding: 0.6rem 0.7rem;
     border-bottom: 1px solid var(--border);
     vertical-align: top;
   }
-  th { color: var(--ink-muted); font-weight: 600; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  th { color: var(--ink-muted); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.03em; }
   .table-scroll { overflow-x: auto; }
 
   .status-pill {
     display: inline-block;
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size: 0.78rem;
-    font-weight: 600;
+    font-weight: 700;
     border-radius: 999px;
     padding: 0.12em 0.65em;
     color: #fff;
@@ -187,7 +238,7 @@
     display: flex;
     gap: 1.4rem;
     flex-wrap: wrap;
-    margin-top: 1.1rem;
+    margin-top: 1.2rem;
     padding-top: 1rem;
     border-top: 1px solid var(--border);
     font-size: 0.82rem;
@@ -208,17 +259,29 @@
     grid-template-columns: 1.6rem 1fr;
     gap: 0 1rem;
     padding: 1rem 0;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--border-quiet);
   }
   ol.steps > li:first-child { border-top: none; padding-top: 0; }
   ol.steps > li:last-child { padding-bottom: 0; }
   .step-num {
     font-family: Iowan Old Style, Charter, Georgia, serif;
     font-size: 1.1rem;
-    color: var(--accent);
+    color: var(--ink-muted);
     font-weight: 600;
   }
   .step-body p { margin: 0; color: var(--ink-muted); font-size: 0.92rem; max-width: 58ch; }
+
+  .links-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .links-row a {
+    text-decoration: none;
+    font-size: 0.92rem;
+  }
+  .links-row a:hover { text-decoration: underline; }
+  .links-row .desc { color: var(--ink-muted); font-size: 0.85rem; }
 
   footer {
     color: var(--ink-muted);
@@ -237,7 +300,10 @@
 <header class="topbar">
   <span class="brand">study-python-tantai-siken</span>
   <nav>
-    <a href="https://github.com/ohtsuka-shota-se/study-python-tantai-siken" target="_blank" rel="noopener">GitHubで見る ↗</a>
+    <a href="#spec">仕様</a>
+    <a href="#flow">テストフロー</a>
+    <a href="#setup">セットアップ</a>
+    <a href="https://github.com/ohtsuka-shota-se/study-python-tantai-siken" target="_blank" rel="noopener" class="external">GitHub ↗</a>
   </nav>
 </header>
 
@@ -247,13 +313,28 @@
     <h1>S3のオブジェクトを取得するLambda関数</h1>
     <p class="lede">
       <code>bucket</code> と <code>key</code> を受け取り、対象のS3オブジェクトの中身を返すだけの
-      小さなAWS Lambda関数です。このページでは仕様・ローカル環境構築・テストの流れをまとめています。
+      小さなAWS Lambda関数です。返り値は3パターンのいずれかで、それぞれユニットテストで担保しています。
     </p>
+    <div class="glance">
+      <div class="glance-item" style="--glance-color: var(--accent);">
+        <span class="code">400</span>
+        <p>bucket / key が未指定</p>
+      </div>
+      <div class="glance-item" style="--glance-color: var(--pass);">
+        <span class="code">200</span>
+        <p>S3から正常に取得できた</p>
+      </div>
+      <div class="glance-item" style="--glance-color: var(--fail);">
+        <span class="code">500</span>
+        <p>S3アクセス中に例外が発生</p>
+      </div>
+    </div>
   </div>
 
-  <section>
+  <section class="primary" id="spec">
+    <p class="eyebrow">Behavior</p>
     <h2>lambda_handler の仕様</h2>
-    <div class="card table-scroll">
+    <div class="table-scroll">
       <table>
         <thead>
           <tr><th>条件</th><th>ステータス</th><th>内容</th></tr>
@@ -279,27 +360,8 @@
     </div>
   </section>
 
-  <section>
-    <h2>ローカル環境構築</h2>
-    <div class="card">
-      <pre class="codeblock"># 1. リポジトリを取得
-git clone https://github.com/ohtsuka-shota-se/study-python-tantai-siken.git
-cd study-python-tantai-siken
-
-# 2. 仮想環境を作成して有効化
-python -m venv .venv
-.venv\Scripts\Activate.ps1        # Windows
-source .venv/bin/activate         # macOS / Linux
-
-# 3. 依存パッケージをインストール
-pip install -r requirements.txt
-
-# 4. テストを実行
-pytest tests/test_lambda_function.py -v</pre>
-    </div>
-  </section>
-
-  <section class="card">
+  <section class="primary" id="flow">
+    <p class="eyebrow">Test Flow</p>
     <h2>pytest 実行フロー</h2>
     <div class="diagram-scroll">
 <pre class="mermaid">
@@ -322,8 +384,8 @@ flowchart TD
     F -->|"全テスト終了"| R["結果を集計し<br/>サマリーを表示"]
 
     classDef pass fill:#3f7d58,stroke:#3f7d58,color:#ffffff;
-    classDef fail fill:#b14a3d,stroke:#b14a3d,color:#ffffff;
-    classDef setup fill:#a67c1e,stroke:#a67c1e,color:#ffffff;
+    classDef fail fill:#b23b3b,stroke:#b23b3b,color:#ffffff;
+    classDef setup fill:#2c5fa0,stroke:#2c5fa0,color:#ffffff;
     class P pass
     class Q fail
     class D1,D2 setup
@@ -336,7 +398,8 @@ flowchart TD
     </div>
   </section>
 
-  <section>
+  <section class="secondary">
+    <p class="eyebrow">Test Cases</p>
     <h2>テストケースと検証対象の対応</h2>
     <ol class="steps">
       <li>
@@ -363,6 +426,35 @@ flowchart TD
     </ol>
   </section>
 
+  <section class="secondary" id="setup">
+    <p class="eyebrow">Setup</p>
+    <h2>ローカル環境構築</h2>
+    <pre class="codeblock"># 1. リポジトリを取得
+git clone https://github.com/ohtsuka-shota-se/study-python-tantai-siken.git
+cd study-python-tantai-siken
+
+# 2. 仮想環境を作成して有効化
+python -m venv .venv
+.venv\Scripts\Activate.ps1        # Windows
+source .venv/bin/activate         # macOS / Linux
+
+# 3. 依存パッケージをインストール
+pip install -r requirements.txt
+
+# 4. テストを実行
+pytest tests/test_lambda_function.py -v</pre>
+  </section>
+
+  <section class="secondary">
+    <p class="eyebrow">Links</p>
+    <h2>関連ドキュメント</h2>
+    <div class="links-row">
+      <div><a href="https://github.com/ohtsuka-shota-se/study-python-tantai-siken/blob/main/tests/README.md" target="_blank" rel="noopener">tests/README.md ↗</a> <span class="desc">— テストの方針・対応表・デバッグ時の注意</span></div>
+      <div><a href="https://github.com/ohtsuka-shota-se/study-python-tantai-siken/blob/main/docs/debugging.md" target="_blank" rel="noopener">docs/debugging.md ↗</a> <span class="desc">— VSCodeデバッグ用語集</span></div>
+      <div><a href="https://github.com/ohtsuka-shota-se/study-python-tantai-siken/blob/main/docs/github-push.md" target="_blank" rel="noopener">docs/github-push.md ↗</a> <span class="desc">— GitHubへのpush手順・Pages有効化手順</span></div>
+    </div>
+  </section>
+
   <footer>
     ソースは <a href="https://github.com/ohtsuka-shota-se/study-python-tantai-siken" target="_blank" rel="noopener">GitHubリポジトリ</a> を参照してください。
   </footer>
@@ -376,8 +468,8 @@ flowchart TD
     theme: isDark ? "dark" : "default",
     securityLevel: "loose",
     themeVariables: isDark
-      ? { background: "#1b1e26", primaryColor: "#22262f", primaryTextColor: "#ece9df", primaryBorderColor: "#2e323c", lineColor: "#9ca2ae", tertiaryColor: "#22262f" }
-      : { background: "#ffffff", primaryColor: "#f1efe4", primaryTextColor: "#20242c", primaryBorderColor: "#e1dccd", lineColor: "#5b6270", tertiaryColor: "#f1efe4" }
+      ? { background: "#1b1e26", primaryColor: "#20232b", primaryTextColor: "#ece9e0", primaryBorderColor: "#2c2f38", lineColor: "#9ca3b0", tertiaryColor: "#20232b" }
+      : { background: "#ffffff", primaryColor: "#efeadd", primaryTextColor: "#1c2027", primaryBorderColor: "#e3dcc9", lineColor: "#5b6472", tertiaryColor: "#efeadd" }
   });
 </script>
 </body>

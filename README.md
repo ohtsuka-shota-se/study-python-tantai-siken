@@ -2,6 +2,8 @@
 
 S3からオブジェクトを取得して内容を返すAWS Lambda関数と、そのユニットテストです。
 
+公開ページ（GitHub Pages）: https://ohtsuka-shota-se.github.io/study-python-tantai-siken/
+
 ## 構成
 
 ```
