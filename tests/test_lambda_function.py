@@ -13,6 +13,8 @@ lambda_function = importlib.import_module("lambda_function") #
 
 
 # ── ③ 各テストケース ──
+
+# ③-1
 def test_returns_200_with_object_content():
     # Amazon S3の実際のレスポンス構造を再現する
     fake_body = MagicMock()
@@ -39,6 +41,7 @@ def test_returns_200_with_object_content():
         Bucket="my-bucket", Key="my-key.txt"
     )
 
+# ③-2
 def test_returns_500_when_connection_fails():
     # S3クライアントを模したモックを作成し、
     # get_object() が呼ばれた際に接続エラー（例外）を発生させるよう設定する
@@ -55,6 +58,7 @@ def test_returns_500_when_connection_fails():
     # S3への接続失敗時に、Lambda関数が500エラーを返すことを検証
     assert result["statusCode"] == 500
 
+# ③-3
 def test_returns_400_when_bucket_or_key_missing():
     # bucket が無い場合
     result = lambda_function.lambda_handler({"key": "my-key.txt"}, None)
