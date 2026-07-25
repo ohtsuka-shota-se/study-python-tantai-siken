@@ -80,6 +80,7 @@ pytest tests/test_lambda_function.py -v
 ## 関連ドキュメント
 
 - [`tests/README.md`](tests/README.md) — テストの方針・テストケースの対応表
+- [`docs/pytest-flow.md`](docs/pytest-flow.md) — pytest実行時にどのPythonファイルが呼ばれるかのフロー図
 - [`docs/debugging.md`](docs/debugging.md) — VSCodeデバッグ用語集（ブレークポイント・ステップ実行など）
 - [`docs/github-push.md`](docs/github-push.md) — GitHubへのpush手順・GitHub Pagesの有効化手順
 
