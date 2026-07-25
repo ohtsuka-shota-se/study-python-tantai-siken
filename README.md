@@ -10,7 +10,9 @@ tests/
   test_lambda_function.py  # ユニットテスト
   README.md                 # テストの方針・対応表
 docs/
-  github-push.md            # GitHubへのpush手順
+  index.html                 # GitHub Pages用ドキュメント
+  github-push.md             # GitHubへのpush手順
+  debugging.md                # VSCodeデバッグ用語集
 requirements.txt
 ```
 
@@ -53,6 +55,12 @@ pytest tests/test_lambda_function.py -v
 ```
 
 テストの内容や `lambda_handler` との対応関係は [`tests/README.md`](tests/README.md) を参照してください。
+
+## 関連ドキュメント
+
+- [`tests/README.md`](tests/README.md) — テストの方針・テストケースの対応表
+- [`docs/debugging.md`](docs/debugging.md) — VSCodeデバッグ用語集（ブレークポイント・ステップ実行など）
+- [`docs/github-push.md`](docs/github-push.md) — GitHubへのpush手順・GitHub Pagesの有効化手順
 
 ## AWSへのデプロイについて
 

@@ -34,6 +34,9 @@ AWS SDK (`boto3`) には実際にはネットワーク越しにS3へアクセス
 
 ## 5. ブレークポイントで except に入らないように見えるとき
 
+VSCodeのデバッグ用語（ブレークポイント・ステップオーバー等）自体の説明は
+[`docs/debugging.md`](../docs/debugging.md) にまとめています。
+
 `test_returns_500_when_connection_fails` は `get_object.side_effect = Exception(...)` により、
 `get_object()` を呼んだ瞬間に自動で例外が発生する仕組みです。変数を手動で書き換える必要はありません。
 それでも `lambda_function.py` の `except` に入らないように見える場合、原因はだいたい次のどちらかです。
