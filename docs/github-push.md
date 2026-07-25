@@ -47,6 +47,19 @@ git commit -m "変更内容が分かるメッセージ"
 git push
 ```
 
+## GitHub Pagesの有効化（初回のみ）
+
+`docs/index.html` を公開するには、GitHubのリポジトリ設定でPagesを有効にする必要があります
+（コマンドではなく、GitHubのWeb画面での操作です）。
+
+1. GitHubでリポジトリを開き、`Settings` タブを開く
+2. 左メニューの `Pages` を開く
+3. `Build and deployment` の `Source` を `Deploy from a branch` に設定
+4. `Branch` を `main` / `/docs` に設定して `Save`
+5. 数分後、`https://ohtsuka-shota-se.github.io/study-python-tantai-siken/` で公開される
+
+`docs/index.html` を更新して push すれば、自動的にページも更新されます。
+
 ## 除外しているファイル
 
 `.gitignore` で以下を除外しています。
