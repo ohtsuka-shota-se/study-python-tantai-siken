@@ -31,3 +31,22 @@ AWS SDK (`boto3`) には実際にはネットワーク越しにS3へアクセス
 
 - `lambda_handler` に新しい分岐を足したら、上の対応表にも行を追加してください。
 - S3以外の外部サービスを呼ぶようになった場合も、実際には接続せずモックで代替する方針を踏襲してください。
+
+## 5. ブレークポイントで except に入らないように見えるとき
+
+`test_returns_500_when_connection_fails` は `get_object.side_effect = Exception(...)` により、
+`get_object()` を呼んだ瞬間に自動で例外が発生する仕組みです。変数を手動で書き換える必要はありません。
+それでも `lambda_function.py` の `except` に入らないように見える場合、原因はだいたい次のどちらかです。
+
+1. **複数テストをまとめてデバッグしていて、最初のヒットで止まっている**
+   `lambda_function.py` の `obj = s3.get_object(...)` にブレークポイントを置いた状態で全テストを
+   デバッグ実行すると、このブレークポイントは**テストごとに毎回ヒットします**（呼び出し順は
+   `test_returns_200_with_object_content` → `test_returns_500_when_connection_fails` →
+   `test_returns_400_when_bucket_or_key_missing`）。1回目のヒットは200ケースなので `except` には入りません。
+   Continue（F5）でもう一度進めると、2回目のヒットで500ケースの例外を確認できます。
+
+2. **対象のテストだけを狙ってデバッグする（おすすめ）**
+   Test Explorer上で `test_returns_500_when_connection_fails` を右クリック→「Debug Test」で単体実行すれば、
+   最初のヒットが必ず500ケースになります。`s3.get_object(...)` の行はStep Over（F10）で進めてください。
+   Step Into（F11）すると `unittest/mock.py` の内部実装に潜ってしまい、`except` に行かないように
+   見えることがあります。
